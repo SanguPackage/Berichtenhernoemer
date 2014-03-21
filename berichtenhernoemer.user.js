@@ -7,7 +7,7 @@
 // @include			http://nl*.tribalwars.nl/game.php?*screen=info_village*&id=*
 // ==/UserScript==
 
-// Versie 1.9
+// Versie 2.1
 
 function executeScript()
 {
@@ -33,7 +33,7 @@ function executeScript()
     var korteNamen = { spear: 'sp', sword: 'zw', axe: 'bijl', archer: "boog", spy: "ver", light: "lc", marcher: "bb", heavy: "zc", ram: "ram", catapult: "kata", knight: "ridder", snob: "edel", militia: "mil" };
     var unitSizes = { spear: 1, sword: 1, axe: 1, archer: 1, spy: 2, light: 4, marcher: 4, heavy: 6, ram: 5, catapult: 6, knight: 1, snob: 100, militia: 1 };
     var unitIndexes = {};
-    var buildingNames = { Kerk: 'KERK', Muur: 'muur', Boerderij: 'boerderij', Verzamelplaats: 'plaats', Houthakkers: 'hout', Leemgroeve: 'leem', IJzermijn: 'ijzer', Opslagplaats: 'opslag', Hoofdplaats: 'hoofd', Adelshoeve: 'AH', Schuilplaats: 'schuil' };
+    var buildingNames = { 'Eerste kerk' : '1e KERK', Kerk: 'KERK', Muur: 'muur', Boerderij: 'boerderij', Verzamelplaats: 'plaats', Houthakkers: 'hout', Leemgroeve: 'leem', IJzermijn: 'ijzer', Opslagplaats: 'opslag', Hoofdplaats: 'hoofd', Adelshoeve: 'AH', Schuilplaats: 'schuil' };
     var unitsSpeed = [['spear', 18], ['sword', 22], ['axe', 18], ['archer', 18], ['spy', 9], ['light', 10], ['marcher', 10], ['heavy', 11], ['ram', 30], ['catapult', 30], ['knight', 10], ['snob', 35]];
     var resBuildingProduction = [30, 35, 41, 47, 55, 64, 74, 86, 100, 117, 136, 158, 184, 214, 249, 289, 337, 391, 455, 530, 616, 717, 833, 969, 1127, 1311, 1525, 1774, 2063, 2400];
     var opslagplaats = [1000, 1229, 1512, 1859, 2285, 2810, 3454, 4247, 5222, 6420, 7893, 9705, 11932, 14670, 18037, 22177, 33523, 33523, 41217, 50675, 62305, 76604, 94184, 115798, 142373, 175047, 215219, 264611, 325337, 400000];
@@ -46,7 +46,7 @@ function executeScript()
 
     //return;
 
-    var DEBUG = false;
+    var DEBUG = true;
     var settings =
 	{
 	    excludeWorlds: ['nl'], // Uitschakelen voor bepaalde werelden
@@ -89,6 +89,9 @@ function executeScript()
                 worldSpeed = 1;
                 worldBuildSpeed = 1;
                 break;
+	    case 'nl37':
+		worldSpeed = 1;
+		worldBuildSpeed = 1
         }
 
         function isActiveHere(property)
@@ -352,7 +355,7 @@ function executeScript()
             }
 
             var newName = "";
-            var inputName = $("#editInput");
+            var inputName = $(".quickedit-label");
 
             // begin berichthernoemer
             function getPlayer(side, table)
@@ -507,7 +510,11 @@ function executeScript()
                     return pad(dat.getDate(), 2) + "." + pad(dat.getMonth() + 1, 2) + "." + dat.getFullYear().toString().substr(2) + " " + pad(dat.getHours(), 2) + ':' + pad(dat.getMinutes(), 2) + ':' + pad(dat.getSeconds(), 2); // + "(" + dat.getFullYear() + ")";
             }
 
-            var verzondenCell = inputName.parent().parent().parent().next();
+            /*var verzondenCell = inputName.parent().parent().parent().next();
+	    console.log(inputName);*/
+	    var verzondenCell = $("td").filter(function() {
+		return $(this).text() == "Verzonden";
+	    }).closest("tr");
             attacker.verzonden = verzondenCell.find("td:eq(1)").text();
             var arrivalTime = getDateFromTW(attacker.verzonden);
             var slowestUnit = 0;
@@ -695,7 +702,7 @@ function executeScript()
 			function ()
 			{
 			    var extraCode = $(this).attr("extraCode");
-			    var originalName = inputName.val();
+			    var originalName = $.trim(inputName.text());
 			    if (originalName.indexOf("}") > 1)
 			    {
 			        var newCode = originalName.substr(0, originalName.indexOf("}"));
@@ -707,9 +714,9 @@ function executeScript()
 			                newCode = newCode.substr(0, newCode.length - 1);
 			                break;
 			        }
-
-			        inputName.val(newCode + extraCode + "}" + originalName.substr(originalName.indexOf("}") + 1));
-			        inputName.next().click();
+				inputName.closest('table').find('a.rename-icon').click();
+				//alert(newCode + extraCode + "}" + originalName.substr(originalName.indexOf("}") + 1))
+			        $('.quickedit-edit input').first().val(newCode + extraCode + "}" + originalName.substr(originalName.indexOf("}") + 1)).next().click();
 			        //alert(inputName.val());
 			    }
 			});
@@ -742,22 +749,26 @@ function executeScript()
                 {
                     defender.buildings = {};
                     defender.buildingsDesc = "";
-                    //alert($(infos[1]).html());
-                    //alert("'"+$(infos[1]).find("td:first").text()+"'");
-                    var buildings = $.trim($(infos[1]).find("td:first").text()).split("\n");
+		    if ($.trim($(infos[1]).find('th:first').text()).match(/Mogelijke\sgrondstoffen/i)) {
+			var buildings = $.trim($(infos[2]).find("td:first").text()).split("\n");
+		    } else {
+			var buildings = $.trim($(infos[1]).find("td:first").text()).split("\n");
+		    }
                     $.each(buildings,
 					function (i, v)
 					{
 					    var match = $.trim(v).match(/(.*)\s\(Level\s(\d+)\)/);
+					    
 					    if (match != null && match.length > 1)
 					    {
+						
 					        if (buildingNames[match[1]] != undefined)
 					        {
 					            var naam = match[1];
 					            var level = match[2];
-					            //alert(naam + ': ' + level);
+					            //alert(naam + ' : ' + level);
 					            defender.buildings[naam] = level;
-
+						    
 					            switch (naam)
 					            {
 					                case "Verzamelplaats":
@@ -778,16 +789,21 @@ function executeScript()
 					                case "Kerk":
 					                    defender.buildingsDesc += "__________________" + buildingNames[match[1]] + " (LvL) " + level;
 					                    break;
+							case "Eerste kerk":
+					                    defender.buildingsDesc += "__________________" + buildingNames[match[1]] + " (LvL) " + level;
+					                    break;
 					                default:
 					                    if (settings.doFarming) defender.buildingsDesc += settings.descSeperator + buildingNames[match[1]] + settings.descEqualizer + level;
 					                    break;
 					            }
-
-					            if (defender.buildings.Verzamelplaats == undefined)
-					                defender.buildingsDesc += settings.descSeperator + 'Geen verzamelplaats';
+						    
+						    
 					        }
 					    }
 					});
+		    //alert(defender.buildings.Verzamelplaats);
+		    if (defender.buildings.Verzamelplaats == undefined)
+			defender.buildingsDesc += settings.descSeperator + 'Geen verzamelplaats';
                     if (defender.buildingsDesc.length > 1) defender.buildingsDesc = defender.buildingsDesc.substr(2);
 
                     if (aantalRows >= 6)
@@ -808,11 +824,14 @@ function executeScript()
                 }
             }
 
-            if (side.muurEind == undefined && ((defender.buildings != undefined && defender.buildings.Muur == undefined) || (attacker.totalBegin > settings.zerowall.requiredPop && attacker.units.ram.begin > settings.zerowall.requiredRam)))
+            if (side.muurEind == undefined && (defender.buildings != undefined && defender.buildings.Muur == undefined))
             {
                 side.muurBegin = 0;
                 side.muurEind = 0;
-            }
+            } else if(side.muurEind == undefined && (attacker.totalBegin > settings.zerowall.requiredPop && attacker.units.ram.begin > settings.zerowall.requiredRam)) {
+		side.muurBegin = '?';
+                side.muurEind = '?';
+	    }
 
             // farming berekening
             if (settings.doFarming && defender.res != undefined)
@@ -1045,12 +1064,13 @@ function executeScript()
 
             //alert(defender.village.coord);
             //alert(newName);
-            if (game_data.player.premium && newName.length > 0 && (inputName.val().indexOf("{") != 0 || DEBUG))
+            if (game_data.player.premium && newName.length > 0 && (inputName.text().indexOf("{") != 0 || DEBUG))
             {
-                newName = buildReplaceString(newName, defender, attacker, side);
-                inputName.val(newName).next().click();
+		newName = buildReplaceString(newName, defender, attacker, side);
+		inputName.parent().find('a.rename-icon').click();
+		$(".quickedit-edit input").first().val(newName).next().click();
             }
-            $("#labelText").text(game_data.player.premium ? "DONE" : "NO PREMIUM"); // 2 click behavior: inputname string is x aantal lijnen
+            $(inputName).text(game_data.player.premium ? "DONE" : "NO PREMIUM"); // 2 click behavior: inputname string is x aantal lijnen
         }
 
 
@@ -1072,6 +1092,7 @@ function executeScript()
 		|| location.href.indexOf('&mode=defense') > -1)
 		|| location.href.indexOf('screen=info_village') > -1)
         {
+	    //alert("berichtenlijsten");
             if (proStyle.active)
             {
                 if (proStyle.selectLastUsedBerichtGroup)
@@ -1119,12 +1140,11 @@ function executeScript()
 			function (index, value)
 			{
 			    var td = $("td:first", value);
-			    var span = $("span:eq(1)", td);
+			    var span = $(this).find(".quickedit-label");
 			    var newCells = "";
 
 			    td.next().attr("nowrap", "nowrap");
-
-			    var reportId = td.find("a:first").attr("href").match(/view=(\d*)/)[1];
+			    var reportId = td.next().find("a:first").attr("href").match(/view=(\d*)/)[1];
 			    if (laatstGelezen == reportId) { td.parent().addClass("selected"); }
 			    if (settings.alternatingRows)
 			    {
@@ -1137,6 +1157,7 @@ function executeScript()
 			    var contextImage = img("graphic/command/attack.png", "Naar de verzamelplaats!");
 			    //link = "<a href=" + link + ">" + img("graphic/command/attack.png", "") + "</a>";
 			    var match = $.trim(span.text()).match(/^\{(.{2,6})\}(.*)$/);
+			    //alert(match);
 			    if (match != null && match.length > 1)
 			    {
 			        span.text(match[2]);
@@ -1230,7 +1251,8 @@ function executeScript()
 
 			        //if (code.indexOf("RAFM") >-1) alert(code + ": " + replaceImg);
 			        $("img:not(:last)", td).remove()
-			        $("input:first", td).after(replaceImg);
+				//alert(td.html());
+			        $(td).next().find('img:last').after(replaceImg);
 			    }
 			    else
 			    {
@@ -1324,12 +1346,13 @@ function executeScript()
 							function ()
 							{
 							    var row = $(this);
-							    if (row.find("td:first").text().toLowerCase().indexOf(needle) == -1) hiders = hiders.add(row);
+							    if (row.find("td:first").next().text().toLowerCase().indexOf(needle) == -1) hiders = hiders.add(row);
 							});
 				        hiders.hide();
 				    }
 				    else
 				    {
+					//alert("else");
 				        images.each(function () { $(this).find("img").css("background-color", ""); });
 				        var showers = $();
 				        var hiders = $();
@@ -1337,7 +1360,9 @@ function executeScript()
 							function ()
 							{
 							    var row = $(this);
-							    if (row.find("td:first").text().toLowerCase().indexOf(needle) > -1) showers = showers.add(row);
+							    //alert(needle + " /_/ " + $.trim(row.find("td:first").next().text()).toLowerCase() + "\n -/" + $.trim(row.find("td:first").next().text()).toLowerCase().indexOf(needle));
+							    
+							    if ($.trim(row.find("td:first").next().text()).toLowerCase().indexOf(needle) > -1) showers = showers.add(row);
 							    else hiders = hiders.add(row);
 							});
 				        showers.show();
@@ -1373,7 +1398,7 @@ function executeScript()
 									{
 									    var row = $(this);
 									    //alert(row.find("td:first").text());
-									    if (row.find("td:first").text().indexOf("(nieuw)") > -1) showers = showers.add(row);
+									    if ($.trim(row.find("td:first").next().text()).indexOf("(nieuw)") > -1) showers = showers.add(row);
 									    else hiders = hiders.add(row);
 									});
 				                break;
@@ -1382,10 +1407,10 @@ function executeScript()
 									function ()
 									{
 									    var row = $(this);
-									    if (row.find("td:first img[src^='" + searchNeedle + "']").size() > 0) showers = showers.add(row);
+									    if (row.find("td:first").next().find("img[src^='" + searchNeedle + "']").size() > 0) showers = showers.add(row);
 									    else
 									    {
-									        if (searchNeedle == 'graphic/unit/unit_snob.png' && row.find("td:first").text().indexOf("verovert") > -1) showers = showers.add(row);
+									        if (searchNeedle == 'graphic/unit/unit_snob.png' && row.find("td:first").next().text().indexOf("verovert") > -1) showers = showers.add(row);
 									        else hiders = hiders.add(row);
 									    }
 									});
