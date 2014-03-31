@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name					Berichthernoemer
-// @author				Grote Smurf / De Goede Fee
+// @author				Grote Smurf / De Goede Fee (Edited by: Tjeerdo / .Arrogant)
 // @namespace			
 // @description			
 // @include			http://nl*.tribalwars.nl/game.php?*screen=report*
 // @include			http://nl*.tribalwars.nl/game.php?*screen=info_village*&id=*
 // ==/UserScript==
 
-// Versie 2.1
+// Versie 2.2
 
 function executeScript()
 {
@@ -953,7 +953,7 @@ function executeScript()
                     if (spyTable.size() == 0 && !defender.seen)
                     {
                         newName += "L}" + replaceStringScoutLose; // Scout attack failed: SAL
-                    }
+                    } 
                     else
                     {
                         newName += "W";
@@ -1022,11 +1022,17 @@ function executeScript()
                     if (defender.seen && defender.totalEind == 0)
                     {
                         // Gewonnen
-                        if (defender.totalBegin == 0)
+                        if (defender.totalBegin == 0 )
                         {
                             // Farm - geen verdediger
-                            if (defender.buit.begin < defender.buit.eind) newName += "FM" + (attacker.units.spy.eind > 0 ? "S" : "") + "}" + replaceStringAttackFarmAll; // Farm Max
-                            else newName += "FS" + (attacker.units.spy.eind > 0 ? "S" : "") + "}" + replaceStringAttackFarmSome; // Farm Some
+                            if (defender.buit != undefined && defender.buit.begin < defender.buit.eind) {
+				newName += "FM" + (attacker.units.spy.eind > 0 ? "S" : "") + "}" + replaceStringAttackFarmAll; // Farm Max
+			    } else if (defender.buit == undefined && attacker.units.spy.eind > 0) {
+				    newName += "SV}" + replaceStringScoutBuildings; // scout attack succeeded, other troops lost
+			    }
+                            else {
+				newName += "FS" + (attacker.units.spy.eind > 0 ? "S" : "") + "}" + replaceStringAttackFarmSome; // Farm Some
+                            }
                         }
                         else if (attacker.perKilled < 5)
                         {
@@ -1060,17 +1066,14 @@ function executeScript()
                 }
                 //else newName = ""; // Forwarded
             }
-
-
-            //alert(defender.village.coord);
-            //alert(newName);
+	    
             if (game_data.player.premium && newName.length > 0 && (inputName.text().indexOf("{") != 0 || DEBUG))
             {
 		newName = buildReplaceString(newName, defender, attacker, side);
 		inputName.parent().find('a.rename-icon').click();
 		$(".quickedit-edit input").first().val(newName).next().click();
-            }
-            $(inputName).text(game_data.player.premium ? "DONE" : "NO PREMIUM"); // 2 click behavior: inputname string is x aantal lijnen
+            } 
+	    $(inputName).text(game_data.player.premium ? "DONE" : "NO PREMIUM"); // 2 click behavior: inputname string is x aantal lijnen
         }
 
 
@@ -1237,6 +1240,7 @@ function executeScript()
 								.replace('%0', img('graphic/face.png', 'Faken (0)'))
 								.replace("%F%M", img("graphic/max_loot/0.png", 'Alle grondstoffen meegenomen (FM)'))
 								.replace("%F%S", img("graphic/max_loot/1.png", 'Nog grondstoffen aanwezig (FS)'))
+								.replace('%S%V', img('graphic/dots/red_blue.png', 'Verkenners (SV)'))
 								.replace('%F', img('graphic/unit/unit_light.png', 'Farmen (F)'))
 								.replace('%S', img('graphic/dots/blue.png', 'Verkenners (S)'))
 								.replace('%R', img('graphic/unit/unit_ram.png', 'Rammen (R)'))
@@ -1337,15 +1341,16 @@ function executeScript()
 				    if (needle == "")
 				    {
 				        images.each(function () { $(this).find("img").css("background-color", ""); });
-				        $("tr:gt(1)", table).show();
+				        $("tr[class*='row_']", table).show();
 				    }
 				    else if (lastEntry != "" && needle.indexOf(lastEntry) == 0)
 				    {
 				        var hiders = $();
-				        $("tr:gt(1)", table).each(
+				        $("tr[class*='row_']", table).each(
 							function ()
 							{
 							    var row = $(this);
+							    //alert(row.html())
 							    if (row.find("td:first").next().text().toLowerCase().indexOf(needle) == -1) hiders = hiders.add(row);
 							});
 				        hiders.hide();
@@ -1356,7 +1361,7 @@ function executeScript()
 				        images.each(function () { $(this).find("img").css("background-color", ""); });
 				        var showers = $();
 				        var hiders = $();
-				        $("tr:gt(1)", table).each(
+				        $("tr[class*='row_']", table).each(
 							function ()
 							{
 							    var row = $(this);
@@ -1393,7 +1398,7 @@ function executeScript()
 				        switch (searchNeedle)
 				        {
 				            case "graphic/new_report.png":
-				                $("tr:gt(1)", table).each(
+				                $("tr[class*='row_']", table).each(
 									function ()
 									{
 									    var row = $(this);
@@ -1403,7 +1408,7 @@ function executeScript()
 									});
 				                break;
 				            default:
-				                $("tr:gt(1)", table).each(
+				                $("tr[class*='row_']", table).each(
 									function ()
 									{
 									    var row = $(this);
@@ -1438,7 +1443,7 @@ function executeScript()
  function ()
  {
      var script = document.createElement("script");
-     script.textContent = "(" + executeScript + ")()";
+     script.textContent = "$(document).ready(" + executeScript + ")";
      document.body.appendChild(script);
  }
 )();
