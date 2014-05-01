@@ -513,7 +513,7 @@ function executeScript()
             /*var verzondenCell = inputName.parent().parent().parent().next();
 	    console.log(inputName);*/
 	    var verzondenCell = $("td").filter(function() {
-		return $(this).text() == "Verzonden";
+		return $.trim($(this).text()) == "Gevechtstijd"; 
 	    }).closest("tr");
             attacker.verzonden = verzondenCell.find("td:eq(1)").text();
             var arrivalTime = getDateFromTW(attacker.verzonden);
