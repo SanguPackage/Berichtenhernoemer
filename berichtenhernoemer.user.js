@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name					Berichthernoemer
 // @author				Grote Smurf / De Goede Fee (Edited by: Tjeerdo / .Arrogant)
+// @version 			2.3
 // @namespace			
 // @description			
 // @include			http://nl*.tribalwars.nl/game.php?*screen=report*
 // @include			http://nl*.tribalwars.nl/game.php?*screen=info_village*&id=*
 // ==/UserScript==
 
-// Versie 2.2
+// Versie 2.3
 
 function executeScript()
 {
@@ -268,7 +269,7 @@ function executeScript()
                 // Vorige knop toevoegen zodat je niet op delete klikt:
                 //if (location.href.indexOf('mode=all&view=') > -1)
                 var headerCells = $("#content_value table.vis:eq(2) tr:first td");
-                if (headerCells.size() == 4)
+                if (headerCells.length == 4)
                 {
                     if (headerCells.last().text() == ">>")
                         headerCells.last().before("<td align='center' width='20%'><b>XX</b></td>");
@@ -302,7 +303,7 @@ function executeScript()
                 {
                     function addLink(menu, link, text)
                     {
-                        if (link.size() == 0)
+                        if (link.length == 0)
                             return;
 
                         link.next().remove();
@@ -324,7 +325,7 @@ function executeScript()
                     var modemenu = $("#content_value table.modemenu");
 
                     var opnieuwLink = table.find("a[href*='&screen=place&try=confirm&type=same&report_id=']");
-                    if (opnieuwLink.size() == 1)
+                    if (opnieuwLink.length == 1)
                     {
                         modemenu.append("<tr><td style='background-color: #ebd6ab'>&nbsp;</td></tr><tr><th>Aanvallen</th></tr>");
                         addLink(modemenu, opnieuwLink, "Opnieuw");
@@ -332,7 +333,7 @@ function executeScript()
                     }
 
                     opnieuwLink = table.find("a[href*='&screen=place&mode=sim&report_id=']");
-                    if (opnieuwLink.size() == 1)
+                    if (opnieuwLink.length == 1)
                     {
                         modemenu.append("<tr><td style='background-color: #ebd6ab'>&nbsp;</td></tr><tr><th>Simulator</th></tr>");
                         addLink(modemenu, opnieuwLink, "Invullen");
@@ -346,7 +347,7 @@ function executeScript()
 
             var content_value = $("#content_value");
             var atTable = $("#attack_info_att");
-            if (atTable == null || atTable.size() == 0)
+            if (atTable == null || atTable.length == 0)
             {
                 // Claim / OS
                 //alert($("h4", content_value).text());
@@ -361,7 +362,7 @@ function executeScript()
             function getPlayer(side, table)
             {
                 side.name = $("th:eq(1)", table);
-                if (side.name.find("a").size() != 0)
+                if (side.name.find("a").length != 0)
                 {
                     side.name = side.name.text();
                     side.id = $("th:eq(1)", table).html().match(/id=(\d+)/)[1];
@@ -396,7 +397,7 @@ function executeScript()
                 side.beginDesc = "";
                 var total = 0;
                 var unitCells = $("tr:eq(1) td:gt(0)", table);
-                if (unitCells.size() == 0)
+                if (unitCells.length == 0)
                 {
                     side.seen = false;
                     side.totalBegin = 0;
@@ -510,12 +511,10 @@ function executeScript()
                     return pad(dat.getDate(), 2) + "." + pad(dat.getMonth() + 1, 2) + "." + dat.getFullYear().toString().substr(2) + " " + pad(dat.getHours(), 2) + ':' + pad(dat.getMinutes(), 2) + ':' + pad(dat.getSeconds(), 2); // + "(" + dat.getFullYear() + ")";
             }
 
-            /*var verzondenCell = inputName.parent().parent().parent().next();
-	    console.log(inputName);*/
 	    var verzondenCell = $("td").filter(function() {
 		return $.trim($(this).text()) == "Gevechtstijd"; 
 	    }).closest("tr");
-            attacker.verzonden = verzondenCell.find("td:eq(1)").text();
+            attacker.verzonden = $.trim(verzondenCell.find("td:eq(1)").text());
             var arrivalTime = getDateFromTW(attacker.verzonden);
             var slowestUnit = 0;
             $.each(unitsSpeed,
@@ -541,7 +540,7 @@ function executeScript()
             $("#sendStats").click(
 			function ()
 			{
-			    if ($("#playerStats").size() != 0)
+			    if ($("#playerStats").length != 0)
 			    {
 			        $("#playerStats").parent().parent().toggle();
 			    }
@@ -597,7 +596,7 @@ function executeScript()
 
             // Muur
             var ram = $("th:contains('Schade door rammen:')", table);
-            if (ram.size() > 0)
+            if (ram.length > 0)
             {
                 var match = ram.next().text().match(/level (\d+) naar level (\d+)/);
                 side.muurBegin = match[1];
@@ -607,7 +606,7 @@ function executeScript()
 
             // Katapulten
             var cata = $("th:contains('Schade door katapultbeschietingen:')", table);
-            if (cata.size() > 0)
+            if (cata.length > 0)
             {
                 //Verzamelplaats is beschadigd van 
                 var match = cata.next().text().match(/(.*) is beschadigd van level (\d+) naar level (\d+)/);
@@ -624,7 +623,7 @@ function executeScript()
             }
 
             // Buit
-            if ($("th:contains('Buit:')", table).size() > 0)
+            if ($("th:contains('Buit:')", table).length > 0)
             {
                 var buit = $("td:eq(1)", table).text().replace(/\./ig, "");
                 defender.buit = { begin: buit.substr(0, buit.indexOf("/")) * 1, eind: buit.substr(buit.indexOf("/") + 1) * 1 };
@@ -635,7 +634,7 @@ function executeScript()
             side.toestemmingBegin = "";
             side.toestemmingEind = -1;
             var toestTable = $("th:contains('Toestemming:')", table);
-            if (toestTable.size() > 0)
+            if (toestTable.length > 0)
             {
                 var toest = toestTable.next().html().match(/\<b\>(\d+)\<.b\> naar \<b\>(-?\d+)\<.b\>/);
                 side.toestemmingBegin = toest[1];
@@ -722,106 +721,81 @@ function executeScript()
 			});
 
             // Scouts
-            var spyTable = $("#attack_spy");
-            if (spyTable.size() != 0)
-            {
-                var infos = $("tbody:first tr", spyTable);
-                var aantalRows = infos.size();
-                //alert("rows:" + aantalRows);
-
-                // grondstoffen
-                if (aantalRows >= 1)
-                {
-                    var spyrescell = $(infos[0]).find("td:first");
-                    var spyres = spyrescell.text().split(" ");
-                    defender.res = { total: 0, holz: 0, lehm: 0, eisen: 0 };
-                    $("img", spyrescell).each(
-					function (gsIndex, gsImg)
-					{
-					    var gs = $(gsImg).attr("src").replace("graphic/", "");
-					    gs = gs.substr(0, gs.indexOf("."));
-					    defender.res[gs] = spyres[gsIndex].toString().replace(".", "").replace(".", "") * 1;
-					    defender.res.total += defender.res[gs];
-					});
-                }
-
-                if (aantalRows >= 2)
-                {
-                    defender.buildings = {};
-                    defender.buildingsDesc = "";
-		    if ($.trim($(infos[1]).find('th:first').text()).match(/Mogelijke\sgrondstoffen/i)) {
-			var buildings = $.trim($(infos[2]).find("td:first").text()).split("\n");
-		    } else {
-			var buildings = $.trim($(infos[1]).find("td:first").text()).split("\n");
+            var spyTableResources = $("#attack_spy_resources");
+	    var spyInputBuildings = $("#attack_spy_building_data");
+	    var spyTableAway = $("#attack_spy_away");
+	    
+	    //resources
+	    if (spyTableResources.length > 0) {
+		var resourcesCell = spyTableResources.find('td');
+		var resources = resourcesCell.text().replace(/\./g, "").match(/\d+/g).map(function (x) { return parseInt(x, 10); });
+		var total=0;
+		var i = resources.length;
+		while(i--) {
+		    total += resources[i];
+		}
+		defender.res = { total: 0, holz: 0, lehm: 0, eisen: 0 };
+		defender.res.holz = resources[0];
+		defender.res.lehm = resources[1];
+		defender.res.eisen = resources[2];
+		defender.res.total = total;
+	    }
+	    
+	    //buildings
+	    if (spyInputBuildings.length > 0) {
+		defender.buildings = {};
+                defender.buildingsDesc = "";
+		var buildings = JSON.parse(spyInputBuildings.val());
+		
+		$.each(buildings, function (i, v) {
+		    var name = this.name;
+		    var level = this.level;
+		    defender.buildings[name] = level;
+		    if (buildingNames[name] != undefined) {
+			switch (name) {
+			    case "Verzamelplaats":
+			    case "Schuilplaats":
+				break;
+			    case "Muur":
+				if (side.muurBegin == undefined) side.muurBegin = level;
+				side.muurEind = level;
+				//defender.buildingsDesc += settings.descSeperator + buildingNames[match[1]] + settings.descEqualizer + level;
+				break;
+			    case "Boerderij":
+				if (level != 30) defender.buildingsDesc += settings.descSeperator + buildingNames[name] + settings.descEqualizer + level;
+				break;
+			    case "Hoofdgebouw":
+				if (settings.doFarming && level >= 15) defender.buildingsDesc += settings.descSeperator + buildingNames[name] + settings.descEqualizer + level;
+				break;
+			    case "Kerk":
+				defender.buildingsDesc += "__________________" + buildingNames[name] + " (LvL) " + level;
+				break;
+			    case "Eerste kerk":
+				defender.buildingsDesc += "__________________" + buildingNames[name] + " (LvL) " + level;
+				break;
+			    default:
+				if (settings.doFarming) defender.buildingsDesc += settings.descSeperator + buildingNames[name] + settings.descEqualizer + level;
+				break;
+			}
 		    }
-                    $.each(buildings,
-					function (i, v)
-					{
-					    var match = $.trim(v).match(/(.*)\s\(Level\s(\d+)\)/);
-					    
-					    if (match != null && match.length > 1)
-					    {
-						
-					        if (buildingNames[match[1]] != undefined)
-					        {
-					            var naam = match[1];
-					            var level = match[2];
-					            //alert(naam + ' : ' + level);
-					            defender.buildings[naam] = level;
-						    
-					            switch (naam)
-					            {
-					                case "Verzamelplaats":
-					                case "Schuilplaats":
-					                    break;
-					                case "Muur":
-					                    if (side.muurBegin == undefined) side.muurBegin = level;
-					                    side.muurEind = level;
-
-					                    //defender.buildingsDesc += settings.descSeperator + buildingNames[match[1]] + settings.descEqualizer + level;
-					                    break;
-					                case "Boerderij":
-					                    if (level != 30) defender.buildingsDesc += settings.descSeperator + buildingNames[match[1]] + settings.descEqualizer + level;
-					                    break;
-					                case "Hoofdgebouw":
-					                    if (settings.doFarming && level >= 15) defender.buildingsDesc += settings.descSeperator + buildingNames[match[1]] + settings.descEqualizer + level;
-					                    break;
-					                case "Kerk":
-					                    defender.buildingsDesc += "__________________" + buildingNames[match[1]] + " (LvL) " + level;
-					                    break;
-							case "Eerste kerk":
-					                    defender.buildingsDesc += "__________________" + buildingNames[match[1]] + " (LvL) " + level;
-					                    break;
-					                default:
-					                    if (settings.doFarming) defender.buildingsDesc += settings.descSeperator + buildingNames[match[1]] + settings.descEqualizer + level;
-					                    break;
-					            }
-						    
-						    
-					        }
-					    }
-					});
-		    //alert(defender.buildings.Verzamelplaats);
-		    if (defender.buildings.Verzamelplaats == undefined)
+		})
+		if (defender.buildings.Verzamelplaats == undefined)
 			defender.buildingsDesc += settings.descSeperator + 'Geen verzamelplaats';
                     if (defender.buildingsDesc.length > 1) defender.buildingsDesc = defender.buildingsDesc.substr(2);
+	    }
+	    
+	    // troops outside the village
+	    if(spyTableAway.length > 0){
+		defender.outside = {};
+		defender.outsideDesc = "";
+		var outside = spyTableAway.find('.vis').find("tr:last td");
+		outside.each(function (i, v) {
+		    defender.outside[i] = $(v).text() * 1;
+		    if (defender.outside[i] > 0)
+			defender.outsideDesc += settings.descSeperator + korteNamen[unitIndexes[i]] + settings.descEqualizer + defender.outside[i];
+		});
 
-                    if (aantalRows >= 6)
-                    {
-                        defender.outside = {};
-                        defender.outsideDesc = "";
-                        var outside = $(infos[3]).find("tr:eq(1) td");
-                        outside.each(
-						function (i, v)
-						{
-						    defender.outside[i] = $(v).text() * 1;
-						    if (defender.outside[i] > 0)
-						        defender.outsideDesc += settings.descSeperator + korteNamen[unitIndexes[i]] + settings.descEqualizer + defender.outside[i];
-						});
-
-                        if (defender.outsideDesc.length > 1) defender.outsideDesc = defender.outsideDesc.substr(1);
-                    }
-                }
+		if (defender.outsideDesc.length > 1) defender.outsideDesc = defender.outsideDesc.substr(1);
             }
 
             if (side.muurEind == undefined && (defender.buildings != undefined && defender.buildings.Muur == undefined))
@@ -911,7 +885,7 @@ function executeScript()
                 modemenu.append("<tr><td style='background-color: #ebd6ab'>&nbsp;</td></tr><tr><th>Farmen</th></tr>");
                 modemenu.append("<tr><td align=center>" + plaatsLink + "<b>Lc: " + (attacker.farmAll == undefined ? attacker.farmGuess : attacker.farmGuess + " / " + attacker.farmAll) + "</b></td></tr>");
 
-                //alert($("#toThePlace").size());
+                //alert($("#toThePlace").length);
                 $("#toThePlace").click(
 				function ()
 				{
@@ -928,7 +902,7 @@ function executeScript()
                 if (attacker.isYou) newName += "A";
                 else if (defender.isYou) newName += "D";
 
-                if (toestTable.size() > 0 && side.toestemmingEind * 1 <= 0) newName += "V}" + replaceStringConquer;
+                if (toestTable.length > 0 && side.toestemmingEind * 1 <= 0) newName += "V}" + replaceStringConquer;
                 else
                 {
                     if (attacker.units['snob'].dood == 0 && attacker.isYou) newName += "W}" + replaceStringEdelWin;
@@ -950,7 +924,7 @@ function executeScript()
                 else
                 {
                     newName += "A";
-                    if (spyTable.size() == 0 && !defender.seen)
+                    if (spyTableResources.length == 0 && !defender.seen)
                     {
                         newName += "L}" + replaceStringScoutLose; // Scout attack failed: SAL
                     } 
@@ -1412,7 +1386,7 @@ function executeScript()
 									function ()
 									{
 									    var row = $(this);
-									    if (row.find("td:first").next().find("img[src^='" + searchNeedle + "']").size() > 0) showers = showers.add(row);
+									    if (row.find("td:first").next().find("img[src^='" + searchNeedle + "']").length > 0) showers = showers.add(row);
 									    else
 									    {
 									        if (searchNeedle == 'graphic/unit/unit_snob.png' && row.find("td:first").next().text().indexOf("verovert") > -1) showers = showers.add(row);
