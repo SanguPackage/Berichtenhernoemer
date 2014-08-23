@@ -106,7 +106,14 @@ function executeScript()
 			});
             return found;
         }
-        settings.doFarming = isActiveHere(settings.farmWorlds);
+        // settings.doFarming = isActiveHere(settings.farmWorlds);
+	// update by flexJoly dd 20140823
+	// so all worlds get farm-info by default (i can only test on nl39)
+	settings.doFarming = true;
+	if(isActiveHere(settings.excludeWorlds)){
+		settings.doFarming = false;
+	}
+
 
         if (worldSpeed != 1) $.each(unitsSpeed, function (val) { val /= worldSpeed * worldBuildSpeed; });
         if (worldBuildSpeed != 1)
@@ -468,6 +475,7 @@ function executeScript()
 
             function getDateFromTW(str)
             {
+                str = $.trim(str);	// 24.08.14 flexjoly
                 //13.02.11 17:51:31
                 var parts = str.split(" ");
                 var dateParts = parts[0].split(".");
