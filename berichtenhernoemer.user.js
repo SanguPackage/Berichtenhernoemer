@@ -1049,13 +1049,13 @@ function executeScript()
                 //else newName = ""; // Forwarded
             }
 	    
-            if (game_data.player.premium && newName.length > 0 && (inputName.text().indexOf("{") != 0 || DEBUG))
+            if (newName.length > 0 && (inputName.text().indexOf("{") != 0 || DEBUG))
             {
 		newName = buildReplaceString(newName, defender, attacker, side);
 		inputName.parent().find('a.rename-icon').click();
 		$(".quickedit-edit input").first().val(newName).next().click();
             } 
-	    $(inputName).text(game_data.player.premium ? "DONE" : "NO PREMIUM"); // 2 click behavior: inputname string is x aantal lijnen
+	    $(inputName).text(game_data.player.premium ? "DONE" : newName); // 2 click behavior: inputname string is x aantal lijnen
         }
 
 
