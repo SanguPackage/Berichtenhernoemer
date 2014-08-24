@@ -738,15 +738,23 @@ function executeScript()
 		var resourcesCell = spyTableResources.find('td');
 		var resources = resourcesCell.text().replace(/\./g, "").match(/\d+/g).map(function (x) { return parseInt(x, 10); });
 		var total=0;
-		var i = resources.length;
-		while(i--) {
-		    total += resources[i];
-		}
 		defender.res = { total: 0, holz: 0, lehm: 0, eisen: 0 };
-		defender.res.holz = resources[0];
-		defender.res.lehm = resources[1];
-		defender.res.eisen = resources[2];
-		defender.res.total = total;
+		
+		var i = resources.length;
+		if(i>2){
+			// zet een max op de resources
+			// want FA vult deze tabel ook....
+			i=2;
+		}
+		if(i>1){
+			while(i--) {
+			    total += resources[i];
+			}
+			defender.res.holz = resources[0];
+			defender.res.lehm = resources[1];
+			defender.res.eisen = resources[2];
+			defender.res.total = total;
+		}
 	    }
 	    
 	    //buildings
