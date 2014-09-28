@@ -226,6 +226,10 @@ function executeScript()
                     newName = newName.replace("{buitBegin}", "");
                     newName = newName.replace("{buitEind}", "");
                 }
+                
+                
+                newName = newName.replace("{dis}", "F"+parseInt(attacker.looptijd.fields));
+                
 
                 newName = newName.replace("{def dorp}", defender.village.name);
                 newName = newName.replace("{def xy}", defender.village.coord);
