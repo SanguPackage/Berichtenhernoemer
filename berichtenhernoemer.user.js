@@ -12,24 +12,24 @@
 
 function executeScript()
 {
-    var replaceStringAttackWin = "{att xy} - {def xy} ({def naam}): Populatie: {def popBegin}. {buitBegin}{buitEind}{muurEind}{catapult}";
-    var replaceStringAttackFarmAll = "{att xy} - {def xy} ({def naam}): LEEG! {buitBegin}{buitEind}{farm}{att troopsDood}{muurEind}{catapult}";
-    var replaceStringAttackFarmSome = "{att xy} - {def xy} ({def naam}): VOL! {buitBegin}{buitEind}{farm}{att troopsDood}{muurEind}{catapult}";
-    var replaceStringAttackLose = "{att xy} - {def xy} ({def naam}): Aanval dood: {att troopsBegin}{muurEind}{catapult}";
-    var replaceStringAttackLoseScout = "{att xy} - {def xy} ({def naam}): Def over: {def troopsEind}{muurEind}{catapult}";
+    var replaceStringAttackWin = "{dis} {att xy} - {def xy} ({def naam}): Populatie: {def popBegin}. {buitBegin}{buitEind}{muurEind}{catapult}{buildings}";
+    var replaceStringAttackFarmAll = "{dis} {att xy} - {def xy} ({def naam}): LEEG! {buitBegin}{buitEind}{farm}{att troopsDood}{muurEind}{catapult}{buildings}";
+    var replaceStringAttackFarmSome = "{dis} {att xy} - {def xy} ({def naam}): VOL! {buitBegin}{buitEind}{farm}{att troopsDood}{muurEind}{catapult}{buildings}";
+    var replaceStringAttackLose = "{dis} {att xy} - {def xy} ({def naam}): Aanval dood: {att troopsBegin}{muurEind}{catapult}{buildings}";
+    var replaceStringAttackLoseScout = "{dis} {att xy} - {def xy} ({def naam}): Def over: {def troopsEind}{muurEind}{catapult}{buildings}";
 
-    var replaceStringEdelWin = "{att xy} - {def xy} ({def naam}): Toestemming van {toestBegin} naar {toestEind}";
-    var replaceStringEdelLose = "{att xy} - {def xy} ({def naam}): Defender {def troopsBegin}";
-    var replaceStringConquer = "{att xy} - {def xy} ({def naam}) verovert {def dorp}!";
+    var replaceStringEdelWin = "{dis} {att xy} - {def xy} ({def naam}): Toestemming van {toestBegin} naar {toestEind}";
+    var replaceStringEdelLose = "{dis} {att xy} - {def xy} ({def naam}): Defender {def troopsBegin}";
+    var replaceStringConquer = "{dis} {att xy} - {def xy} ({def naam}) verovert {def dorp}!";
 
-    var replaceStringScoutLose = "{att xy} - {def xy} ({def naam}): Verlies = {att scout} verk";
-    var replaceStringScoutTroops = "{att xy} - {def xy} ({def naam}): {def troopsBegin}! {res}{farm}";
-    var replaceStringScoutBuildings = "{att xy} - {def xy} ({def naam}): {def troopsBegin}! {res}{farm}{muurEind}{buildings}";
-    var replaceStringScoutOutside = "{att xy} - {def xy} ({def naam}): {def troopsBegin}! {res}{farm}{muurEind}, Buiten: {def outside}{buildings}";
+    var replaceStringScoutLose = "{dis} {att xy} - {def xy} ({def naam}): Verlies = {att scout} verk";
+    var replaceStringScoutTroops = "{dis} {att xy} - {def xy} ({def naam}): {def troopsBegin}! {res}{farm}{muurEind}{buildings}";
+    var replaceStringScoutBuildings = "{dis} {att xy} - {def xy} ({def naam}): {def troopsBegin}! {res}{farm}{muurEind}{buildings}";
+    var replaceStringScoutOutside = "{dis} {att xy} - {def xy} ({def naam}): {def troopsBegin}! {res}{farm}{muurEind}, Buiten: {def outside}{buildings}";
 
-    var replaceStringScoutDef = "{att xy} - {def xy} ({att naam}) met {att scout} tegen {def scout} verk";
-    var replaceStringDefenseWin = "{att xy} - {def xy} ({att naam}) doodt {att %}%. Populatie: {def popEind}{muurEind}{catapult}";
-    var replaceStringDefenseLose = "{att xy} - {def xy} ({att naam}) doodt alle {def popBegin}{muurEind}{catapult}";
+    var replaceStringScoutDef = "{dis} {att xy} - {def xy} ({att naam}) met {att scout} tegen {def scout} verk";
+    var replaceStringDefenseWin = "{dis} {att xy} - {def xy} ({att naam}) doodt {att %}%. Populatie: {def popEind}{muurEind}{catapult}";
+    var replaceStringDefenseLose = "{dis} {att xy} - {def xy} ({att naam}) doodt alle {def popBegin}{muurEind}{catapult}";
 
     var korteNamen = { spear: 'sp', sword: 'zw', axe: 'bijl', archer: "boog", spy: "ver", light: "lc", marcher: "bb", heavy: "zc", ram: "ram", catapult: "kata", knight: "ridder", snob: "edel", militia: "mil" };
     var unitSizes = { spear: 1, sword: 1, axe: 1, archer: 1, spy: 2, light: 4, marcher: 4, heavy: 6, ram: 5, catapult: 6, knight: 1, snob: 100, militia: 1 };
@@ -106,7 +106,14 @@ function executeScript()
 			});
             return found;
         }
-        settings.doFarming = isActiveHere(settings.farmWorlds);
+        // settings.doFarming = isActiveHere(settings.farmWorlds);
+	// update by flexJoly dd 20140823
+	// so all worlds get farm-info by default (i can only test on nl39)
+	settings.doFarming = true;
+	if(isActiveHere(settings.excludeWorlds)){
+		settings.doFarming = false;
+	}
+
 
         if (worldSpeed != 1) $.each(unitsSpeed, function (val) { val /= worldSpeed * worldBuildSpeed; });
         if (worldBuildSpeed != 1)
@@ -219,6 +226,10 @@ function executeScript()
                     newName = newName.replace("{buitBegin}", "");
                     newName = newName.replace("{buitEind}", "");
                 }
+                
+                
+                newName = newName.replace("{dis}", "F"+parseInt(attacker.looptijd.fields));
+                
 
                 newName = newName.replace("{def dorp}", defender.village.name);
                 newName = newName.replace("{def xy}", defender.village.coord);
@@ -468,6 +479,7 @@ function executeScript()
 
             function getDateFromTW(str)
             {
+                str = $.trim(str);	// 24.08.14 flexjoly
                 //13.02.11 17:51:31
                 var parts = str.split(" ");
                 var dateParts = parts[0].split(".");
@@ -730,15 +742,23 @@ function executeScript()
 		var resourcesCell = spyTableResources.find('td');
 		var resources = resourcesCell.text().replace(/\./g, "").match(/\d+/g).map(function (x) { return parseInt(x, 10); });
 		var total=0;
-		var i = resources.length;
-		while(i--) {
-		    total += resources[i];
-		}
 		defender.res = { total: 0, holz: 0, lehm: 0, eisen: 0 };
-		defender.res.holz = resources[0];
-		defender.res.lehm = resources[1];
-		defender.res.eisen = resources[2];
-		defender.res.total = total;
+		
+		var i = resources.length;
+		if(i>2){
+			// zet een max op de resources
+			// want FA vult deze tabel ook....
+			i=2;
+		}
+		if(i>1){
+			while(i--) {
+			    total += resources[i];
+			}
+			defender.res.holz = resources[0];
+			defender.res.lehm = resources[1];
+			defender.res.eisen = resources[2];
+			defender.res.total = total;
+		}
 	    }
 	    
 	    //buildings
@@ -1041,13 +1061,13 @@ function executeScript()
                 //else newName = ""; // Forwarded
             }
 	    
-            if (game_data.player.premium && newName.length > 0 && (inputName.text().indexOf("{") != 0 || DEBUG))
+            if (newName.length > 0 && (inputName.text().indexOf("{") != 0 || DEBUG))
             {
 		newName = buildReplaceString(newName, defender, attacker, side);
 		inputName.parent().find('a.rename-icon').click();
 		$(".quickedit-edit input").first().val(newName).next().click();
             } 
-	    $(inputName).text(game_data.player.premium ? "DONE" : "NO PREMIUM"); // 2 click behavior: inputname string is x aantal lijnen
+	    $(inputName).text(game_data.player.premium ? "DONE" : newName); // 2 click behavior: inputname string is x aantal lijnen
         }
 
 
