@@ -4,8 +4,8 @@
 // @version 			2.3
 // @namespace			
 // @description			
-// @include			http://nl*.tribalwars.nl/game.php?*screen=report*
-// @include			http://nl*.tribalwars.nl/game.php?*screen=info_village*&id=*
+// @include			https://nl*.tribalwars.nl/game.php?*screen=report*
+// @include			https://nl*.tribalwars.nl/game.php?*screen=info_village*&id=*
 // ==/UserScript==
 
 // Versie 2.3
