@@ -1,11 +1,10 @@
 // ==UserScript==
-// @name					Berichthernoemer
-// @author				Grote Smurf / De Goede Fee (Edited by: Tjeerdo / .Arrogant)
-// @version 			2.3
-// @namespace			
-// @description			
-// @include			https://nl*.tribalwars.nl/game.php?*screen=report*
-// @include			https://nl*.tribalwars.nl/game.php?*screen=info_village*&id=*
+// @name test
+// @namespace Tampermonkey ? Home
+// @version 0.1
+// @description try to take over the world!
+// @author xxx
+// @match https://pl122.plemiona.pl/*
 // ==/UserScript==
 
 // Versie 2.3
